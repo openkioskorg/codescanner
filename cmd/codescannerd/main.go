@@ -1,32 +1,24 @@
 package main
 
+import (
+	"log"
+
+	cs "gitlab.com/openkiosk/codescanner"
+
+)
+
 func main() {
-	ports, err := serial.GetPortsList()
+	conf := &cs.CodeScannerConfig{
+		PortName: "/dev/ttyACM0",
+		BuffLen: 100,
+	}
+	scanner, err := cs.Init(conf)
 	if err != nil {
 		log.Fatal(err)
 	}
-	if len(ports) == 0 {
-		log.Fatal("No serial ports found!")
-	}
-	for _, port := range ports {
-		fmt.Printf("Found port: %v\n", port)
-	}
-
-	port, err := serial.Open("/dev/ttyACM0", &serial.Mode{})
+	res, err := scanner.Scan()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
-
-	for {
-		n, err := port.Read(buff)
-		if err != nil {
-			log.Fatal(err)
-			break
-		}
-		if n == 0 {
-			fmt.Println("\nEOF")
-			break
-		}
-		fmt.Printf("%v\n", string(buff[:n]))
-	}
+	log.Println(string(res))
 }
