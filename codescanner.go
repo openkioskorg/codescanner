@@ -22,13 +22,16 @@ type CodeScannerConfig struct {
 // Represents a QR code/barcode scanner with a serial interface
 type CodeScannerDevice struct {
 	serial.Port
-	buffLen uint
+	buffLen  uint
 	debounce time.Duration
 }
 
 func Init(conf *CodeScannerConfig) (*CodeScannerDevice, error) {
 	port, err := serial.Open(conf.PortName, &serial.Mode{})
 	if err != nil {
+		return nil, err
+	}
+	if err := port.ResetInputBuffer(); err != nil {
 		return nil, err
 	}
 	return &CodeScannerDevice{Port: port, buffLen: conf.BuffLen,
@@ -48,9 +51,9 @@ func (d *CodeScannerDevice) Scan() ([]byte, error) {
 	return buff, nil
 }
 
-type CodeScannerResult struct{
+type CodeScannerResult struct {
 	BytesRead []byte
-	Err error
+	Err       error
 }
 
 // Keeps scanning and shoves the read bytes down a channel
@@ -64,9 +67,9 @@ func (d *CodeScannerDevice) ScanWithHandler(ch chan<- *CodeScannerResult) {
 		if n == 0 {
 			ch <- &CodeScannerResult{Err: ErrEOF}
 		}
-		
+
 		ch <- &CodeScannerResult{BytesRead: buff}
-		
+
 		time.Sleep(d.debounce)
 
 		// Don't read things that were scanned during the debounce period
