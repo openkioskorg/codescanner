@@ -1,0 +1,12 @@
+device:
+  portname: "/dev/ttyACM0"
+  # Read this many bytes at a time
+  bufflen: 100
+  # After a successfull read pause this much
+  debounce: "1s"
+
+mqtt:
+  brokers:
+    - "mqtt://127.0.0.1:1883"
+  topic: "codescannerd"
+  client_id: "codescannerd-1"

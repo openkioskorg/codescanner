@@ -17,44 +17,28 @@
 package main
 
 import (
-	"bytes"
-	"context"
-	"encoding/base64"
+	"fmt"
 	"log"
+	"os"
 
 	cs "gitlab.com/openkiosk/codescanner"
+	"gopkg.in/yaml.v3"
 )
 
-// By default ignore scans until start command
-var isStarted = false
-
-func main() {
-	conf := parseConfig()
-	scanner, err := cs.Init(conf.Device)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	broker, err := newBroker(conf.Mqtt)
-	if err != nil {
-		log.Fatal("Failed to connect to MQTT broker: ", err)
-	}
-
-	for {
-		res, err := scanner.Scan()
-		if err != nil {
-			log.Println(err)
-		}
-		if isStarted {
-			if err := broker.publishScan(context.Background(), b64(res)); err != nil {
-				log.Println("Failed to publish event: ", err)
-			}
-		}
-	}
+type daemonConfig struct {
+	// TODO: expose underlying serial library config
+	Device *cs.CodeScannerConfig `yaml:"device"`
+	Mqtt   brokerConfig          `yaml:"mqtt"`
 }
 
-// Trim null bytes and base64 encode
-func b64(b []byte) string {
-	b = bytes.Trim(b, "\x00")
-	return base64.StdEncoding.EncodeToString(b)
+func parseConfig() (conf daemonConfig) {
+	file, err := os.ReadFile("config.yaml")
+	if err != nil {
+		log.Fatal("Failed to read config: ", err)
+	}
+	if err := yaml.Unmarshal(file, &conf); err != nil {
+		log.Fatal("Failed to unmarshal yaml: ", err)
+	}
+	fmt.Printf("%v", *conf.Device)
+	return
 }
