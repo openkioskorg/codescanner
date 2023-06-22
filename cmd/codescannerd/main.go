@@ -21,6 +21,7 @@ import (
 	"context"
 	"encoding/base64"
 	"log"
+	"os"
 
 	cs "gitlab.com/openkiosk/codescanner"
 )
@@ -29,7 +30,11 @@ import (
 var isStarted = false
 
 func main() {
-	conf := parseConfig()
+	if len(os.Args) < 2 {
+		log.Fatal("Usage: ./codescannerd config.yaml")
+	}
+	conf := parseConfig(os.Args[1])
+
 	scanner, err := cs.Init(conf.Device)
 	if err != nil {
 		log.Fatal(err)

@@ -1,7 +1,7 @@
 device:
   portname: "/dev/ttyACM0"
   # Read this many bytes at a time
-  bufflen: 100
+  bufflen: 150
   # After a successfull read pause this much
   debounce: "1s"
 

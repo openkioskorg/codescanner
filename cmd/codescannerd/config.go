@@ -17,7 +17,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -31,14 +30,13 @@ type daemonConfig struct {
 	Mqtt   brokerConfig          `yaml:"mqtt"`
 }
 
-func parseConfig() (conf daemonConfig) {
-	file, err := os.ReadFile("config.yaml")
+func parseConfig(filename string) (conf daemonConfig) {
+	file, err := os.ReadFile(filename)
 	if err != nil {
 		log.Fatal("Failed to read config: ", err)
 	}
 	if err := yaml.Unmarshal(file, &conf); err != nil {
 		log.Fatal("Failed to unmarshal yaml: ", err)
 	}
-	fmt.Printf("%v", *conf.Device)
 	return
 }
