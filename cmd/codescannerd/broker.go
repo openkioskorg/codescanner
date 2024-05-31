@@ -50,6 +50,7 @@ func newBroker(conf brokerConfig) (*mqttBroker, error) {
 
 	b := &mqttBroker{}
 	cm, err := autopaho.NewConnection(context.Background(), autopaho.ClientConfig{
+		KeepAlive: 60,
 		BrokerUrls: brokerUrls,
 		OnConnectionUp: func(cm *autopaho.ConnectionManager, connAck *paho.Connack) {
 			log.Println("MQTT connection up")
