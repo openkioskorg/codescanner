@@ -48,7 +48,8 @@ func main() {
 	for {
 		res, err := scanner.Scan()
 		if err != nil {
-			log.Println(err)
+			// Scanner disconnected
+			log.Fatal(err)
 		}
 		if isStarted {
 			if err := broker.publishScan(context.Background(), b64(res)); err != nil {
